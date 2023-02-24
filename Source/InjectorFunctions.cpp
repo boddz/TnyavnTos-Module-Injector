@@ -25,12 +25,12 @@ void Injector::InjectorFunctions::InjectModule(std::string ModulePath, std::wstr
         return;
     }
   
-    HANDLE Process = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, TargetProcessID);
+    HANDLE Process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, TargetProcessID);
     if (!Process)
     {
         if (GetLastError() == ERROR_INVALID_PARAMETER)
         {
-            Injector::UI::PopupNotificationMessage = "Process ID does not exist";
+            Injector::UI::PopupNotificationMessage = "Invalid process identifier";
         }
         else
         {
@@ -84,6 +84,7 @@ DWORD Injector::InjectorFunctions::GetProcessIDByName(const std::wstring& Proces
 {
     PROCESSENTRY32 processInfo;
     processInfo.dwSize = sizeof(processInfo);
+    auto ProcessID = NULL;
 
     HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
     if (processesSnapshot == INVALID_HANDLE_VALUE)
@@ -94,20 +95,18 @@ DWORD Injector::InjectorFunctions::GetProcessIDByName(const std::wstring& Proces
     Process32First(processesSnapshot, &processInfo);
     if (!ProcessName.compare(processInfo.szExeFile))
     {
-        CloseHandle(processesSnapshot);
-        return processInfo.th32ProcessID;
+        ProcessID = processInfo.th32ProcessID;
     }
 
     while (Process32Next(processesSnapshot, &processInfo))
     {
         if (!ProcessName.compare(processInfo.szExeFile))
         {
-            CloseHandle(processesSnapshot);
-            return processInfo.th32ProcessID;
+            ProcessID = processInfo.th32ProcessID;
         }
     }
     CloseHandle(processesSnapshot);
-    return 0;
+    return ProcessID;
 }
 
 bool Injector::InjectorFunctions::FileHasDOSSignature(char* TargetFilePath)

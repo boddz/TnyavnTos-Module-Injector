@@ -103,18 +103,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
                 std::string TargetProcessNameString(UI::TargetProcessNameOrIDBufferInput);
                 if (!TargetProcessNameString.empty())
                 {
-                    if (std::all_of(TargetProcessNameString.begin(), TargetProcessNameString.end(), isdigit))
+                    try
                     {
-                        try
-                        {
-                            InjectorFunctions::InjectModule(UI::SelectedModuleFile, L"", std::stoi(TargetProcessNameString));
-                        }
-                        catch (...) 
-                        {
-                            Injector::UI::PopupNotificationMessage = "Invalid Process ID";
-                        }
+                        InjectorFunctions::InjectModule(UI::SelectedModuleFile, L"", std::stoi(TargetProcessNameString));
                     }
-                    else
+                    catch (...)
                     {
                         std::wstring ProcessNameWS(TargetProcessNameString.begin(), TargetProcessNameString.end());
                         InjectorFunctions::InjectModule(UI::SelectedModuleFile, ProcessNameWS, NULL);
@@ -132,7 +125,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         }
         if (ImGui::BeginPopupModal("About TMI###AboutPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar))
         {
-            std::string AuthorText = "Author: TnyavnTo\nCompiled: " + (std::string)__DATE__ + " " + (std::string)__TIME__ + "\nGithub: https://github.com/svxy";
+            std::string AuthorText = "Author: TnyavnTo\nCompiled: " + (std::string)__DATE__ + " " + (std::string)__TIME__ + "\nGitHub: https://github.com/svxy";
             ImGui::TextWrapped(AuthorText.c_str());
             if (ImGui::Button("Close", ImVec2(500, 0)))
             {
