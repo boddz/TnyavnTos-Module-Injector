@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Windows.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <psapi.h>
 #include <d3d11.h>
 #include <shlwapi.h>
 #include <tchar.h>

@@ -86,32 +86,31 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
             }
         }
 
+        // Auto get process id for gta5.
+        std::wstring process_name_gta5 = L"GTA5.exe";
+        DWORD process_id_gta5 = Injector::InjectorFunctions::GetProcessIDByName(process_name_gta5);
+        std::cout << process_id_gta5;
+
         //Process Name Input Section
-        ImGui::Text("Process Name/ID:");
         ImGui::SameLine();
         ImGui::PushItemWidth(292);
         ImGui::InputText("##ProcessNameOrIDInput", UI::TargetProcessNameOrIDBufferInput, IM_ARRAYSIZE(UI::TargetProcessNameOrIDBufferInput), ImGuiInputTextFlags_CharsNoBlank);
         ImGui::Dummy(ImVec2(0, 5));
         if (ImGui::Button("Inject Module", ImVec2(470, 35)))
         {
-            if (!UI::SelectedModuleFile)
+            if (!process_id_gta5) { // Not running.
+                UI::PopupNotificationMessage = "No GTA5.exe process running...";
+            }
+            else if (!UI::SelectedModuleFile)
             {
                UI::PopupNotificationMessage = "You must select a module first";
             }
             else
             {
                 std::string TargetProcessNameString(UI::TargetProcessNameOrIDBufferInput);
-                if (!TargetProcessNameString.empty())
+                if (process_id_gta5)
                 {
-                    try
-                    {
-                        InjectorFunctions::InjectModule(UI::SelectedModuleFile, L"", std::stoi(TargetProcessNameString));
-                    }
-                    catch (...)
-                    {
-                        std::wstring ProcessNameWS(TargetProcessNameString.begin(), TargetProcessNameString.end());
-                        InjectorFunctions::InjectModule(UI::SelectedModuleFile, ProcessNameWS, NULL);
-                    }
+                    InjectorFunctions::InjectModule(UI::SelectedModuleFile, process_name_gta5, static_cast<int>(process_id_gta5));
                 }
                 else
                 {
